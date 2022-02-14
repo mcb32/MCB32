@@ -1,0 +1,432 @@
+From: "Von Internet Explorer 11 gespeichert"
+Subject: Small printf source code
+Date: Sun, 14 Apr 2019 14:30:37 +0200
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_0000_01D4F2CE.A0AB6980"
+X-MimeOLE: Produced By Microsoft MimeOLE
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_01D4F2CE.A0AB6980
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://www.menie.org/georges/embedded/small_printf_source_code.html
+
+=EF=BB=BF<!DOCTYPE HTML>
+<!DOCTYPE html PUBLIC "" ""><HTML lang=3D"en"><HEAD><META =
+content=3D"IE=3D11.0000"=20
+http-equiv=3D"X-UA-Compatible">
+  =20
+<META charset=3D"utf-8">   <TITLE>Small printf source code</TITLE>  =20
+<META name=3D"Keywords" content=3D"embedded free source code m68k =
+DragonEngine 68VZ328 small printf">=20
+ =20
+<META name=3D"Description" content=3D"Small printf function source =
+code">   <LINK=20
+title=3D"new" href=3D"https://www.menie.org/georges/main.css" =
+rel=3D"stylesheet" type=3D"text/css">=20
+<META name=3D"GENERATOR" content=3D"MSHTML 11.00.10570.1001"></HEAD>=20
+<BODY text=3D"#000000" bgcolor=3D"#b0d8ff">
+<H1>Small printf source code</H1>
+<P>This small <CODE>printf</CODE> function is a tiny implementation of =
+the =20
+standard C library function, it does not include all the capabilities of =
+ the=20
+standard one. It has been designed to have a small footprint and to be  =
+easy to=20
+include in an embedded software. The only external dependency is  the=20
+<CODE>putchar()</CODE> functions which output a single character to the  =
+output=20
+device. Once you provide this <CODE>putchar</CODE> function, you may  =
+link your=20
+code with this <CODE>printf</CODE> and use it. This code is released  =
+under the=20
+LGPL license.</P>
+<P>This <CODE>printf</CODE> function will accept integer formats (%d, =
+%x,  %X,=20
+%u), string format (%s) and character format (%c); left and right  =
+alignement,=20
+padding with space or 'O'. See the comments and the test code  at the =
+end of the=20
+source code. You might have to modify it to work with  your compiler =
+with=20
+regards to the variable parameter passing.</P>
+<P>On my DragonEngine (68VZ328) board, I am using the following code to  =
+replace=20
+<CODE>putchar</CODE> :</P>
+<PRE class=3D"source">void _outbyte(int c)=0A=
+{=0A=
+        while ((readb(UTX1) &amp; 0x20) =3D=3D 0)=0A=
+                ;=0A=
+=0A=
+        writeb ((char)c,UTX1+1);=0A=
+}=0A=
+=0A=
+void outbyte(int c)=0A=
+{=0A=
+        static char prev =3D 0;=0A=
+        if (c &lt; ' ' &amp;&amp; c !=3D '\r' &amp;&amp; c !=3D '\n' =
+&amp;&amp; c !=3D '\t' &amp;&amp; c !=3D '\b')=0A=
+                return;=0A=
+        if (c =3D=3D '\n' &amp;&amp; prev !=3D '\r') _outbyte('\r');=0A=
+        _outbyte(c);=0A=
+        prev =3D c;=0A=
+}=0A=
+</PRE>
+<P><CODE>_outbyte</CODE> does the raw output of any char, while  =20
+<CODE>outbyte</CODE> call it for printable chars only and add a CR  =
+character=20
+when needed. This is a very simple scheme, kind of raw versus  cooked =
+mode.</P>
+<UL>
+  <LI>
+  <P><A =
+href=3D"https://www.menie.org/georges/embedded/printf.c">download the =
+code=20
+  without html formatting</A>,   </P>
+  <LI>
+  <P><A =
+href=3D"https://www.menie.org/georges/embedded/printf-stdarg.c">same =
+code=20
+  using stdarg.h</A>,  this version contributed by Christian Ettinger, =
+to use if=20
+  you have a  working stdarg.h for your compiler.</P>
+  <LI>
+  <P>If you need floating-point support as well, check-out this   <A =
+href=3D"https://github.com/DerellLicht/snippets">variant</A>=20
+   provided by Derell Licht.</P></LI></UL>
+<H2>Source code</H2>
+<PRE class=3D"source">/*=0A=
+    Copyright 2001 Georges Menie=0A=
+    https://www.menie.org/georges/embedded/small_printf_source_code.html=0A=
+=0A=
+    This program is free software; you can redistribute it and/or modify=0A=
+    it under the terms of the GNU Lesser General Public License as =
+published by=0A=
+    the Free Software Foundation; either version 2 of the License, or=0A=
+    (at your option) any later version.=0A=
+=0A=
+    This program is distributed in the hope that it will be useful,=0A=
+    but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
+    GNU Lesser General Public License for more details.=0A=
+=0A=
+    You should have received a copy of the GNU Lesser General Public =
+License=0A=
+    along with this program; if not, write to the Free Software=0A=
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
+*/=0A=
+=0A=
+/*=0A=
+	putchar is the only external dependency for this file,=0A=
+	if you have a working putchar, just remove the following=0A=
+	define. If the function should be called something else,=0A=
+	replace outbyte(c) by your own function call.=0A=
+*/=0A=
+#define putchar(c) outbyte(c)=0A=
+=0A=
+static void printchar(char **str, int c)=0A=
+{=0A=
+	extern int putchar(int c);=0A=
+	if (str) {=0A=
+		**str =3D c;=0A=
+		++(*str);=0A=
+	}=0A=
+	else (void)putchar(c);=0A=
+}=0A=
+=0A=
+#define PAD_RIGHT 1=0A=
+#define PAD_ZERO 2=0A=
+=0A=
+static int prints(char **out, const char *string, int width, int pad)=0A=
+{=0A=
+	register int pc =3D 0, padchar =3D ' ';=0A=
+=0A=
+	if (width &gt; 0) {=0A=
+		register int len =3D 0;=0A=
+		register const char *ptr;=0A=
+		for (ptr =3D string; *ptr; ++ptr) ++len;=0A=
+		if (len &gt;=3D width) width =3D 0;=0A=
+		else width -=3D len;=0A=
+		if (pad &amp; PAD_ZERO) padchar =3D '0';=0A=
+	}=0A=
+	if (!(pad &amp; PAD_RIGHT)) {=0A=
+		for ( ; width &gt; 0; --width) {=0A=
+			printchar (out, padchar);=0A=
+			++pc;=0A=
+		}=0A=
+	}=0A=
+	for ( ; *string ; ++string) {=0A=
+		printchar (out, *string);=0A=
+		++pc;=0A=
+	}=0A=
+	for ( ; width &gt; 0; --width) {=0A=
+		printchar (out, padchar);=0A=
+		++pc;=0A=
+	}=0A=
+=0A=
+	return pc;=0A=
+}=0A=
+=0A=
+/* the following should be enough for 32 bit int */=0A=
+#define PRINT_BUF_LEN 12=0A=
+=0A=
+static int printi(char **out, int i, int b, int sg, int width, int pad, =
+int letbase)=0A=
+{=0A=
+	char print_buf[PRINT_BUF_LEN];=0A=
+	register char *s;=0A=
+	register int t, neg =3D 0, pc =3D 0;=0A=
+	register unsigned int u =3D i;=0A=
+=0A=
+	if (i =3D=3D 0) {=0A=
+		print_buf[0] =3D '0';=0A=
+		print_buf[1] =3D '\0';=0A=
+		return prints (out, print_buf, width, pad);=0A=
+	}=0A=
+=0A=
+	if (sg &amp;&amp; b =3D=3D 10 &amp;&amp; i &lt; 0) {=0A=
+		neg =3D 1;=0A=
+		u =3D -i;=0A=
+	}=0A=
+=0A=
+	s =3D print_buf + PRINT_BUF_LEN-1;=0A=
+	*s =3D '\0';=0A=
+=0A=
+	while (u) {=0A=
+		t =3D u % b;=0A=
+		if( t &gt;=3D 10 )=0A=
+			t +=3D letbase - '0' - 10;=0A=
+		*--s =3D t + '0';=0A=
+		u /=3D b;=0A=
+	}=0A=
+=0A=
+	if (neg) {=0A=
+		if( width &amp;&amp; (pad &amp; PAD_ZERO) ) {=0A=
+			printchar (out, '-');=0A=
+			++pc;=0A=
+			--width;=0A=
+		}=0A=
+		else {=0A=
+			*--s =3D '-';=0A=
+		}=0A=
+	}=0A=
+=0A=
+	return pc + prints (out, s, width, pad);=0A=
+}=0A=
+=0A=
+static int print(char **out, int *varg)=0A=
+{=0A=
+	register int width, pad;=0A=
+	register int pc =3D 0;=0A=
+	register char *format =3D (char *)(*varg++);=0A=
+	char scr[2];=0A=
+=0A=
+	for (; *format !=3D 0; ++format) {=0A=
+		if (*format =3D=3D '%') {=0A=
+			++format;=0A=
+			width =3D pad =3D 0;=0A=
+			if (*format =3D=3D '\0') break;=0A=
+			if (*format =3D=3D '%') goto out;=0A=
+			if (*format =3D=3D '-') {=0A=
+				++format;=0A=
+				pad =3D PAD_RIGHT;=0A=
+			}=0A=
+			while (*format =3D=3D '0') {=0A=
+				++format;=0A=
+				pad |=3D PAD_ZERO;=0A=
+			}=0A=
+			for ( ; *format &gt;=3D '0' &amp;&amp; *format &lt;=3D '9'; ++format) =
+{=0A=
+				width *=3D 10;=0A=
+				width +=3D *format - '0';=0A=
+			}=0A=
+			if( *format =3D=3D 's' ) {=0A=
+				register char *s =3D *((char **)varg++);=0A=
+				pc +=3D prints (out, s?s:"(null)", width, pad);=0A=
+				continue;=0A=
+			}=0A=
+			if( *format =3D=3D 'd' ) {=0A=
+				pc +=3D printi (out, *varg++, 10, 1, width, pad, 'a');=0A=
+				continue;=0A=
+			}=0A=
+			if( *format =3D=3D 'x' ) {=0A=
+				pc +=3D printi (out, *varg++, 16, 0, width, pad, 'a');=0A=
+				continue;=0A=
+			}=0A=
+			if( *format =3D=3D 'X' ) {=0A=
+				pc +=3D printi (out, *varg++, 16, 0, width, pad, 'A');=0A=
+				continue;=0A=
+			}=0A=
+			if( *format =3D=3D 'u' ) {=0A=
+				pc +=3D printi (out, *varg++, 10, 0, width, pad, 'a');=0A=
+				continue;=0A=
+			}=0A=
+			if( *format =3D=3D 'c' ) {=0A=
+				/* char are converted to int then pushed on the stack */=0A=
+				scr[0] =3D *varg++;=0A=
+				scr[1] =3D '\0';=0A=
+				pc +=3D prints (out, scr, width, pad);=0A=
+				continue;=0A=
+			}=0A=
+		}=0A=
+		else {=0A=
+		out:=0A=
+			printchar (out, *format);=0A=
+			++pc;=0A=
+		}=0A=
+	}=0A=
+	if (out) **out =3D '\0';=0A=
+	return pc;=0A=
+}=0A=
+=0A=
+/* assuming sizeof(void *) =3D=3D sizeof(int) */=0A=
+=0A=
+int printf(const char *format, ...)=0A=
+{=0A=
+	register int *varg =3D (int *)(&amp;format);=0A=
+	return print(0, varg);=0A=
+}=0A=
+=0A=
+int sprintf(char *out, const char *format, ...)=0A=
+{=0A=
+	register int *varg =3D (int *)(&amp;format);=0A=
+	return print(&amp;out, varg);=0A=
+}=0A=
+=0A=
+#ifdef TEST_PRINTF=0A=
+int main(void)=0A=
+{=0A=
+	char *ptr =3D "Hello world!";=0A=
+	char *np =3D 0;=0A=
+	int i =3D 5;=0A=
+	unsigned int bs =3D sizeof(int)*8;=0A=
+	int mi;=0A=
+	char buf[80];=0A=
+=0A=
+	mi =3D (1 &lt;&lt; (bs-1)) + 1;=0A=
+	printf("%s\n", ptr);=0A=
+	printf("printf test\n");=0A=
+	printf("%s is null pointer\n", np);=0A=
+	printf("%d =3D 5\n", i);=0A=
+	printf("%d =3D - max int\n", mi);=0A=
+	printf("char %c =3D 'a'\n", 'a');=0A=
+	printf("hex %x =3D ff\n", 0xff);=0A=
+	printf("hex %02x =3D 00\n", 0);=0A=
+	printf("signed %d =3D unsigned %u =3D hex %x\n", -3, -3, -3);=0A=
+	printf("%d %s(s)%", 0, "message");=0A=
+	printf("\n");=0A=
+	printf("%d %s(s) with %%\n", 0, "message");=0A=
+	sprintf(buf, "justif: \"%-10s\"\n", "left"); printf("%s", buf);=0A=
+	sprintf(buf, "justif: \"%10s\"\n", "right"); printf("%s", buf);=0A=
+	sprintf(buf, " 3: %04d zero padded\n", 3); printf("%s", buf);=0A=
+	sprintf(buf, " 3: %-4d left justif.\n", 3); printf("%s", buf);=0A=
+	sprintf(buf, " 3: %4d right justif.\n", 3); printf("%s", buf);=0A=
+	sprintf(buf, "-3: %04d zero padded\n", -3); printf("%s", buf);=0A=
+	sprintf(buf, "-3: %-4d left justif.\n", -3); printf("%s", buf);=0A=
+	sprintf(buf, "-3: %4d right justif.\n", -3); printf("%s", buf);=0A=
+=0A=
+	return 0;=0A=
+}=0A=
+=0A=
+/*=0A=
+ * if you compile this file with=0A=
+ *   gcc -Wall $(YOUR_C_OPTIONS) -DTEST_PRINTF -c printf.c=0A=
+ * you will get a normal warning:=0A=
+ *   printf.c:214: warning: spurious trailing `%' in format=0A=
+ * this line is testing an invalid % at the end of the format string.=0A=
+ *=0A=
+ * this should display (on 32bit int machine) :=0A=
+ *=0A=
+ * Hello world!=0A=
+ * printf test=0A=
+ * (null) is null pointer=0A=
+ * 5 =3D 5=0A=
+ * -2147483647 =3D - max int=0A=
+ * char a =3D 'a'=0A=
+ * hex ff =3D ff=0A=
+ * hex 00 =3D 00=0A=
+ * signed -3 =3D unsigned 4294967293 =3D hex fffffffd=0A=
+ * 0 message(s)=0A=
+ * 0 message(s) with %=0A=
+ * justif: "left      "=0A=
+ * justif: "     right"=0A=
+ *  3: 0003 zero padded=0A=
+ *  3: 3    left justif.=0A=
+ *  3:    3 right justif.=0A=
+ * -3: -003 zero padded=0A=
+ * -3: -3   left justif.=0A=
+ * -3:   -3 right justif.=0A=
+ */=0A=
+=0A=
+#endif=0A=
+</PRE></BODY></HTML>
+
+------=_NextPart_000_0000_01D4F2CE.A0AB6980
+Content-Type: text/css;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://www.menie.org/georges/main.css
+
+body {
+	background: rgb(176, 216, 255); color: black; font-family: Verdana, =
+sans-serif;
+}
+h1 {
+	color: blue; padding-bottom: 0.2em;
+}
+h2 {
+	color: blue; padding-top: 0.2em; padding-bottom: 0.2em; =
+border-top-color: red; border-bottom-color: red; border-top-width: thin; =
+border-bottom-width: thin; border-top-style: solid; border-bottom-style: =
+solid;
+}
+h3 {
+	margin-left: 1em;
+}
+h4 {
+	margin-left: 2em;
+}
+p {
+	text-align: justify; margin-left: 2em;
+}
+ul {
+	text-align: justify; margin-left: 2em;
+}
+table {
+	margin-bottom: 0.4em; margin-left: 2em;
+}
+pre.source {
+	background: white; padding: 0.5em; border: inset olive; border-image: =
+none; margin-right: 0em; margin-left: 2em;
+}
+div.pgbody {
+	width: 42em; padding-bottom: 0.5em; margin-left: 9em; =
+border-left-color: red; border-left-width: thin; border-left-style: =
+solid;
+}
+div.pgheader {
+	width: 42em; margin-left: 9em;
+}
+div.leftmenu {
+	width: 9em; font-size: 80%; float: left;
+}
+div.pgfooter {
+	padding-top: 0.5em; clear: both; border-top-color: red; =
+border-top-width: thin; border-top-style: solid;
+}
+div.outer {
+	clear: both;
+}
+div.left {
+	float: left;
+}
+div.right {
+	float: right;
+}
+
+------=_NextPart_000_0000_01D4F2CE.A0AB6980--

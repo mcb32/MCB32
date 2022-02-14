@@ -1,0 +1,18 @@
+Link zu Keil um die Pack für den Package-Installer herunterzuladen und dann zu importieren:
+
+http://www.keil.com/dd2/Pack/
+
+siehe auch Bilder: Keil_1ter_schritt.jpg  und Keil_2ter_schritt.jpg
+
+
+nach dem Download im PackageInstaller Importieren. Siehe Keil_3ter_schritt.jpg
+
+Achtung: im Directory .\92_Tools_SW\Keil\PackageInstaller  sind die Files vorhanden.
+3.2.2015  RMA
+--------------------------------------------------------------------------------------------------
+
+Download MDK:     https://www.keil.com/demo/eval/arm.htm#/DOWNLOAD
+
+Getting started:  http://www2.keil.com/mdk5/install
+Dokumente:        http://www2.keil.com/mdk5/docs
+$
