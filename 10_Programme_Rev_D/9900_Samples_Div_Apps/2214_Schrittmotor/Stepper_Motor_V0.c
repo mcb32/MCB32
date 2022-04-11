@@ -54,25 +54,23 @@ int main(void) 												// Hauptprogramm
 	
    while(1)															// Endlosschlaufe
 	{
-		// schliesse Hardware an P0_0 an
-//		Button = P0_0;											// Buttonzustand PA_0 oder Hardwareschalter an  P0_0 einlesen
-//		if(Button != oldButton)							// irgendeine Flanke erfassen
-//		{
-//			oldButton = Button;
-//			if(!Button) {P1++;}	      				// Nur neg Flanke zählen. und an P1 via LED anzeigen
-//																				// Zählt wenn 1 nach 0(losgelassen)
-//		}
-// Stepper Motor Tabelle Vorwärts CCW
-//                Stepp   1     2     3     4     5     6     7     8
-//      ---------------|------------------------------------------------
-//      P1_3 / OR4     |  1     1     0     0     0     0     0     1
-//      P1_2 / Yel3    |  0     1     1     1     0     0     0     0      
-//      P1_1 / PIN2    |  0     0     0     1     1     1     0     0
-//      P1_0 / BLU1    |  0     0     0     0     0     1     1     1
-//      ------------------------------------------------------------------
-//      Hexcode for P1:  08    0C     04    06    02    03    01    09    
-//      Der HExCode wird P1 von Links nach rechts zugewiesen damit fahren wir CCW
-      
+
+/**
+    * @note:  Stepermotor Verdrahtung / Wiring
+* Stepper Motor Tabelle Vorwärts CCW, die Farben beschreiben die Motordrahtfarben
+* also: Blue ist mit IN1 und dann P1_0 verbunden, 
+*       Pink ist mit IN2 und dann P1_1 verbunden usw. 
+
+*              Stepp --> 1     2     3     4     5     6     7     8
+*      ---------------|------------------------------------------------
+*      P1_3 / OR   4  |  1     1     0     0     0     0     0     1
+*      P1_2 / Yel  3  |  0     1     1     1     0     0     0     0      
+*      P1_1 / PIN  2  |  0     0     0     1     1     1     0     0
+*      P1_0 / BLU  1  |  0     0     0     0     0     1     1     1
+*      ------------------------------------------------------------------
+*      Hexcode for P1:  08    0C     04    06    02    03    01    09    
+*      Der HExCode wird P1 von Links nach rechts zugewiesen damit fahren wir CCW
+*/      
 // Demo für volle Auflösunge CCW (100Hz)
       // Half-step drive
 		if(DisplaySwitch == DisplayOn){
