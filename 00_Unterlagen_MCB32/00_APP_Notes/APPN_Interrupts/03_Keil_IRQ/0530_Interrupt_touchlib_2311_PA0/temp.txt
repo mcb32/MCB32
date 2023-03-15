@@ -1,0 +1,29 @@
+//	if(IrqMem<0x40)
+//	{
+//		if (Round_PA0==0x00)
+//			{
+//				Store_P1 =P1;							// Store original P1
+//				P1=IrqMem;                   // Set new Value
+//				Round_PA0=0x01;             // set 01 for action if PA0 occurs again
+//	    }else{
+//		   	P1=IrqMem;                   // Set new Value
+//			 }
+//	}else{                            // if IrqMem>=0x44
+//		P1=0xAA;                   // restore P1
+//		Round_PA0=0x00;                 // Reset Round
+//		IrqMem=0;
+//		while(1){};                 // TEstpurposes
+//	}
+//	
+//	
+////	if (Store_P1==0x00)
+////	{
+////		Store_P1 =P1;							// Store aktual P1
+////		my_delay(33);             // wait because PA0 is bouncing
+////	  P1=0xFF;                    // Set new Value
+////		Round_PA0=0x01;             // set 01 for action if PA0 occurs again
+////	}
+////	else{
+////		P1=Store_P1;               // Restore original Value 
+////		Round_PA0=0x00;             // set 00 for new action if PA0 occurs again
+////	}
