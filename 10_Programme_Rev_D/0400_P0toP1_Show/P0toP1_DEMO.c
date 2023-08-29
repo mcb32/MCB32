@@ -38,7 +38,7 @@
 	circle(150,200,60,3,YELLOW,0);
 	circle(180,250,60,5,BRIGHT_RED,1);
 	ellipse(200,50,40,20,2,WHITE,0);
-	
+	 P1 = P0;  
   while (1)      				                 // Endlos
   {  
     P1 = P0;                   	         // P1 <-- P0
